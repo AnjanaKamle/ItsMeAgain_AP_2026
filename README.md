@@ -66,6 +66,7 @@ backup code shown at initial enrollment).
 Browser generates QR (session token) → Phone scans + signs with
 private key → Server verifies signature against stored public key →
 Browser gets pushed an approved session
+-------------------------------
 ## Where the real engineering work is:
 
 Key generation/storage on the phone: you'd lean on WebCrypto API (if it's a PWA) or
