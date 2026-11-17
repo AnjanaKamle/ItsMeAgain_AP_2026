@@ -1,0 +1,71 @@
+erDiagram
+    USERS {
+        UUID id PK
+        TEXT email
+        TEXT password_hash
+        TIMESTAMPTZ created_at
+    }
+
+    TRUSTED_DEVICES {
+        UUID id PK
+        UUID user_id FK
+        TEXT device_name
+        TEXT public_key_pem
+        TIMESTAMPTZ created_at
+        TIMESTAMPTZ revoked_at
+    }
+
+    LOGIN_CHALLENGES {
+        UUID id PK
+        BYTEA secret_hash
+        TEXT state
+        TIMESTAMPTZ created_at
+        TIMESTAMPTZ expires_at
+        TIMESTAMPTZ consumed_at
+        UUID approved_user_id FK
+        UUID approved_device_id FK
+    }
+
+    BROWSER_SESSIONS {
+        UUID id PK
+        UUID user_id FK
+        UUID device_id FK
+        UUID challenge_id FK
+        TIMESTAMPTZ created_at
+        TIMESTAMPTZ expires_at
+        TIMESTAMPTZ revoked_at
+    }
+
+    RECOVERY_CODES {
+        UUID id PK
+        UUID user_id FK
+        BYTEA code_hash
+        TIMESTAMPTZ created_at
+        TIMESTAMPTZ used_at
+    }
+
+    AUDIT_EVENTS {
+        UUID id PK
+        UUID user_id FK
+        TEXT event_type
+        TIMESTAMPTZ created_at
+    }
+
+    ACCOUNT_SESSIONS {
+        UUID id PK
+        UUID user_id FK
+        BYTEA token_hash
+        TIMESTAMPTZ created_at
+        TIMESTAMPTZ expires_at
+        TIMESTAMPTZ revoked_at
+    }
+
+    USERS ||--o{ TRUSTED_DEVICES : enrolls
+    USERS ||--o{ BROWSER_SESSIONS : owns
+    TRUSTED_DEVICES ||--o{ BROWSER_SESSIONS : approves
+    LOGIN_CHALLENGES ||--o| BROWSER_SESSIONS : creates
+    USERS ||--o{ RECOVERY_CODES : has
+    USERS ||--o{ ACCOUNT_SESSIONS : has
+    USERS o|--o{ AUDIT_EVENTS : generates
+    USERS o|--o{ LOGIN_CHALLENGES : approves
+    TRUSTED_DEVICES o|--o{ LOGIN_CHALLENGES : approves
