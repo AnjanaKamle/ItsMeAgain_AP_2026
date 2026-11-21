@@ -1,64 +1,39 @@
-# Database Normalization
+# Database design and normalization
 
-This document explains how the authentication app’s data is organized to reduce duplication and keep related information consistent.
+The database supports a course-size sign-in flow. A user signs in on a phone browser, approves a one-time browser login request, and can later revoke the browser session. The schema is described in Prisma at `prisma/schema.prisma` and as PostgreSQL DDL in `03_schema.sql`.
 
-## 1NF: Keep each value in one place
+## Tables and dependencies
 
-The tables store one record per account, trusted phone, login challenge, browser session, recovery code, or audit event. Each column holds one value. For example, a user’s trusted devices are stored as separate rows in `trusted_devices`, rather than as a list inside the `users` row.
+- **users:** `id → phone, password_hash, created_at`; `phone` is unique.
+- **devices:** `id → user_id, name, created_at, revoked_at`.
+- **login_requests:** `id → token, browser_secret, browser_name, status, created_at, expires_at, approval details`; `token` is unique.
+- **sessions:** `id → user_id, device_id, login_request_id, type, name, created_at, expires_at, revoked_at`; `device_id` is required, and a non-null `login_request_id` is unique.
 
-The design avoids repeating groups such as `device_1`, `device_2`, and `device_3`.
+## First normal form
 
-## 2NF: Keep facts about each thing together
+Every column stores one value. A user's devices and sessions are separate rows, not lists stored on the user. Each request has one status and one expiry time.
 
-Each table has a primary key that identifies one row. The tables do not use a multi-column primary key, so there are no columns that depend on only part of a primary key.
+## Second normal form
 
-The recovery-code table also prevents duplicate codes for the same user with `UNIQUE (user_id, code_hash)`. Each recovery code’s creation and use timestamps describe that specific code.
+Every table uses one-column primary keys, so non-key columns depend on the complete key. Unique phone numbers, request tokens, and session request IDs prevent duplicate facts.
 
-## 3NF: Store each fact with the thing it describes
+## Third normal form
 
-Information about a user is stored in `users`. Device information is stored in `trusted_devices`. Challenges, browser sessions, recovery codes, and audit events each have their own tables.
+User details live in `users`; device details live in `devices`; each login request and session has its own row. Other tables refer to these rows by foreign key instead of copying phone numbers or passwords. A browser session points to the request that created it, so that relationship is traceable without duplicating request data.
 
-Other tables refer to users or devices by ID. This avoids copying details such as a user’s email into every device, challenge, and session row. Updating an email therefore requires changing it in one place.
+## Relationships and integrity rules
 
-## Tables and functional dependencies
+- One user can have several registered devices and sessions.
+- A user can approve several login requests. Each request can be approved by one user and one device.
+- A login request creates zero or one browser session; the unique foreign key on `sessions.login_request_id` enforces at most one. Every session records the phone device it belongs to or that approved it.
+- Foreign keys keep related records valid. Deleting a user cascades to their devices and sessions; deleting an approver/device does not erase the request history.
+- PostgreSQL enums restrict request status and session type. Check constraints require expiry after creation, require approval details on approved requests, and require a device for a phone session or request for a browser session.
+- Indexes support active-device lookups, pending-request expiry checks, a user's active-session list, and expiry cleanup.
 
-A functional dependency means that one value (or set of values) identifies the other values in a row.
+## Transaction example
 
-- **users**
-  - `id → email, password_hash, created_at`
-  - `email → id, password_hash, created_at` because email is unique.
-- **trusted_devices**
-  - `id → user_id, device_name, public_key_pem, created_at, revoked_at`
-- **login_challenges**
-  - `id → secret_hash, state, created_at, expires_at, consumed_at, approved_user_id, approved_device_id`
-  - `secret_hash` is also unique and identifies a challenge.
-- **browser_sessions**
-  - `id → user_id, device_id, challenge_id, created_at, expires_at, revoked_at`
-  - `challenge_id` is unique, so it can identify at most one browser session.
-- **recovery_codes**
-  - `id → user_id, code_hash, created_at, used_at`
-  - `(user_id, code_hash) → id, created_at, used_at` because that pair is unique.
-- **audit_events**
-  - `id → user_id, event_type, created_at`
-- **account_sessions**
-  - `id → user_id, token_hash, created_at, expires_at, revoked_at`
-  - `token_hash` is also unique.
+`04_queries.sql` (DEQ-06) shows phone approval as one SQL transaction: change the request only if it is still pending and unexpired, then insert its browser session. The conditional update ensures that two approvals cannot both create a session for the same request, and the unique `sessions.login_request_id` backs this up. The Node app runs the same two statements one after the other with Prisma (`updateMany` with a `PENDING` filter, then `create`).
 
-## Why the tables are separate
+## Scope
 
-- One user can enroll multiple trusted devices.
-- A login challenge is a short-lived request and is stored separately from the device that approves it.
-- A browser session records the result of an approved challenge.
-- Recovery codes and account sessions can each be used or revoked independently.
-- Audit events record security-related activity without storing a copy of all user details.
-
-## Constraints and relationships
-
-- Primary keys identify rows.
-- Foreign keys connect devices, challenges, sessions, recovery codes, and audit events to their related users or devices.
-- Unique constraints prevent duplicate emails, challenge hashes, session token hashes, and repeated recovery codes for one user.
-- Check constraints restrict challenge states and require session and challenge expiry times to be later than their creation times.
-
-## Scope note
-
-This document describes the schema currently in `db/schema.sql`. The database currently stores a trusted device’s public key as `public_key_pem`. The phone’s private signing key must remain on the phone and must not be stored in this database.
+This course version does not store public keys, certificates, OAuth identities, or SMS delivery data. There is no account-recovery flow if the phone is lost. A phone/password account is a classroom demonstration and the phone number is not verified. The SQL files are the DE-facing explanation; Prisma models and migrations are used by the AP application.
