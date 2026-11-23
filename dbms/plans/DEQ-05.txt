@@ -1,0 +1,37 @@
+# DEQ-05 — find a request by the token scanned from the QR code
+# Captured at: 2026-11-23T13:17:57.438Z
+# EXPLAIN (ANALYZE, BUFFERS) raw output for all three measured runs.
+# Type: READ; Parameters: existing token (aa2fd6ea9500563c7ac5b2c0b6ec4629)
+# PostgreSQL: PostgreSQL 14.23 (Homebrew) on aarch64-apple-darwin25.4.0, compiled by Apple clang version 21.0.0 (clang-2100.0.123.102), 64-bit
+# Dataset: users=10001, devices=15000, login_requests=20000, sessions=6000
+====================================================================================================
+DEQ-05 Run 1  [READ]  find a request by the token scanned from the QR code
+Parameters: existing token (aa2fd6ea9500563c7ac5b2c0b6ec4629)
+----------------------------------------------------------------------------------------------------
+Index Scan using login_requests_token_key on login_requests  (cost=0.41..8.43 rows=1 width=48) (actual time=0.022..0.023 rows=1 loops=1)
+  Index Cond: ((token)::text = 'aa2fd6ea9500563c7ac5b2c0b6ec4629'::text)
+  Buffers: shared hit=4
+Planning:
+  Buffers: shared hit=6
+Planning Time: 0.100 ms
+Execution Time: 0.034 ms
+
+====================================================================================================
+DEQ-05 Run 2  [READ]  find a request by the token scanned from the QR code
+Parameters: existing token (aa2fd6ea9500563c7ac5b2c0b6ec4629)
+----------------------------------------------------------------------------------------------------
+Index Scan using login_requests_token_key on login_requests  (cost=0.41..8.43 rows=1 width=48) (actual time=0.010..0.010 rows=1 loops=1)
+  Index Cond: ((token)::text = 'aa2fd6ea9500563c7ac5b2c0b6ec4629'::text)
+  Buffers: shared hit=4
+Planning Time: 0.027 ms
+Execution Time: 0.015 ms
+
+====================================================================================================
+DEQ-05 Run 3  [READ]  find a request by the token scanned from the QR code
+Parameters: existing token (aa2fd6ea9500563c7ac5b2c0b6ec4629)
+----------------------------------------------------------------------------------------------------
+Index Scan using login_requests_token_key on login_requests  (cost=0.41..8.43 rows=1 width=48) (actual time=0.010..0.010 rows=1 loops=1)
+  Index Cond: ((token)::text = 'aa2fd6ea9500563c7ac5b2c0b6ec4629'::text)
+  Buffers: shared hit=4
+Planning Time: 0.014 ms
+Execution Time: 0.014 ms

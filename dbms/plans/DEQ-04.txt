@@ -1,0 +1,41 @@
+# DEQ-04 — start a one-time QR request
+# Captured at: 2026-11-23T13:17:57.436Z
+# EXPLAIN (ANALYZE, BUFFERS) raw output for all three measured runs.
+# Type: WRITE; Parameters: new request id, token, secret, browser name, expires_at (now + 2 min)
+# PostgreSQL: PostgreSQL 14.23 (Homebrew) on aarch64-apple-darwin25.4.0, compiled by Apple clang version 21.0.0 (clang-2100.0.123.102), 64-bit
+# Dataset: users=10001, devices=15000, login_requests=20000, sessions=6000
+====================================================================================================
+DEQ-04 Run 1  [WRITE]  start a one-time QR request
+Parameters: new request id, token, secret, browser name, expires_at (now + 2 min)
+----------------------------------------------------------------------------------------------------
+Insert on login_requests  (cost=0.00..0.01 rows=1 width=626) (actual time=0.295..0.296 rows=1 loops=1)
+  Buffers: shared hit=18
+  ->  Result  (cost=0.00..0.01 rows=1 width=626) (actual time=0.001..0.002 rows=1 loops=1)
+Planning Time: 0.026 ms
+Trigger for constraint login_requests_approved_by_user_id_fkey: time=0.015 calls=1
+Trigger for constraint login_requests_approved_by_device_id_fkey: time=0.004 calls=1
+Execution Time: 0.329 ms
+
+====================================================================================================
+DEQ-04 Run 2  [WRITE]  start a one-time QR request
+Parameters: new request id, token, secret, browser name, expires_at (now + 2 min)
+----------------------------------------------------------------------------------------------------
+Insert on login_requests  (cost=0.00..0.01 rows=1 width=626) (actual time=0.106..0.106 rows=1 loops=1)
+  Buffers: shared hit=8
+  ->  Result  (cost=0.00..0.01 rows=1 width=626) (actual time=0.002..0.002 rows=1 loops=1)
+Planning Time: 0.031 ms
+Trigger for constraint login_requests_approved_by_user_id_fkey: time=0.004 calls=1
+Trigger for constraint login_requests_approved_by_device_id_fkey: time=0.001 calls=1
+Execution Time: 0.124 ms
+
+====================================================================================================
+DEQ-04 Run 3  [WRITE]  start a one-time QR request
+Parameters: new request id, token, secret, browser name, expires_at (now + 2 min)
+----------------------------------------------------------------------------------------------------
+Insert on login_requests  (cost=0.00..0.01 rows=1 width=626) (actual time=0.241..0.242 rows=1 loops=1)
+  Buffers: shared hit=10 dirtied=1 written=1
+  ->  Result  (cost=0.00..0.01 rows=1 width=626) (actual time=0.001..0.002 rows=1 loops=1)
+Planning Time: 0.016 ms
+Trigger for constraint login_requests_approved_by_user_id_fkey: time=0.004 calls=1
+Trigger for constraint login_requests_approved_by_device_id_fkey: time=0.001 calls=1
+Execution Time: 0.260 ms

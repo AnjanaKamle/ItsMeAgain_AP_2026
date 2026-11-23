@@ -1,0 +1,37 @@
+# DEQ-01 — create a user (registration)
+# Captured at: 2026-11-23T13:17:57.428Z
+# EXPLAIN (ANALYZE, BUFFERS) raw output for all three measured runs.
+# Type: WRITE; Parameters: new user id, new phone, password hash
+# PostgreSQL: PostgreSQL 14.23 (Homebrew) on aarch64-apple-darwin25.4.0, compiled by Apple clang version 21.0.0 (clang-2100.0.123.102), 64-bit
+# Dataset: users=10001, devices=15000, login_requests=20000, sessions=6000
+====================================================================================================
+DEQ-01 Run 1  [WRITE]  create a user (registration)
+Parameters: new user id, new phone, password hash
+----------------------------------------------------------------------------------------------------
+Insert on users  (cost=0.00..0.01 rows=1 width=122) (actual time=0.258..0.258 rows=1 loops=1)
+  Buffers: shared hit=9
+  ->  Result  (cost=0.00..0.01 rows=1 width=122) (actual time=0.001..0.002 rows=1 loops=1)
+Planning:
+  Buffers: shared hit=3
+Planning Time: 0.030 ms
+Execution Time: 0.277 ms
+
+====================================================================================================
+DEQ-01 Run 2  [WRITE]  create a user (registration)
+Parameters: new user id, new phone, password hash
+----------------------------------------------------------------------------------------------------
+Insert on users  (cost=0.00..0.01 rows=1 width=122) (actual time=0.083..0.084 rows=1 loops=1)
+  Buffers: shared hit=5
+  ->  Result  (cost=0.00..0.01 rows=1 width=122) (actual time=0.002..0.002 rows=1 loops=1)
+Planning Time: 0.027 ms
+Execution Time: 0.098 ms
+
+====================================================================================================
+DEQ-01 Run 3  [WRITE]  create a user (registration)
+Parameters: new user id, new phone, password hash
+----------------------------------------------------------------------------------------------------
+Insert on users  (cost=0.00..0.01 rows=1 width=122) (actual time=0.032..0.033 rows=1 loops=1)
+  Buffers: shared hit=5
+  ->  Result  (cost=0.00..0.01 rows=1 width=122) (actual time=0.001..0.001 rows=1 loops=1)
+Planning Time: 0.013 ms
+Execution Time: 0.039 ms
