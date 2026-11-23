@@ -1,0 +1,40 @@
+# DEQ-09 — check the session named by a verified JWT cookie
+# Captured at: 2026-11-23T18:56:03.196Z
+# EXPLAIN (ANALYZE, BUFFERS) raw output for all three measured runs.
+# Type: READ; Parameters: existing session id (fac98944-7cad-2edb-c89f-bcba70003b36), its user id (270c1b08-4f3f-146e-b578-7075158d9c53)
+# PostgreSQL: PostgreSQL 14.23 on aarch64-apple-darwin20.0.0, compiled by clang version 20.1.8, 64-bit
+# Dataset: users=10001, devices=15000, login_requests=20000, sessions=6000
+====================================================================================================
+DEQ-09 Run 1  [READ]  check the session named by a verified JWT cookie
+Parameters: existing session id (fac98944-7cad-2edb-c89f-bcba70003b36), its user id (270c1b08-4f3f-146e-b578-7075158d9c53)
+----------------------------------------------------------------------------------------------------
+Index Scan using sessions_pkey on sessions  (cost=0.28..8.31 rows=1 width=60) (actual time=0.011..0.013 rows=1 loops=1)
+  Index Cond: (id = 'fac98944-7cad-2edb-c89f-bcba70003b36'::uuid)
+  Filter: ((revoked_at IS NULL) AND (user_id = '270c1b08-4f3f-146e-b578-7075158d9c53'::uuid) AND (expires_at > now()))
+  Buffers: shared hit=5
+Planning:
+  Buffers: shared hit=135
+Planning Time: 0.229 ms
+Execution Time: 0.024 ms
+
+====================================================================================================
+DEQ-09 Run 2  [READ]  check the session named by a verified JWT cookie
+Parameters: existing session id (fac98944-7cad-2edb-c89f-bcba70003b36), its user id (270c1b08-4f3f-146e-b578-7075158d9c53)
+----------------------------------------------------------------------------------------------------
+Index Scan using sessions_pkey on sessions  (cost=0.28..8.31 rows=1 width=60) (actual time=0.002..0.002 rows=1 loops=1)
+  Index Cond: (id = 'fac98944-7cad-2edb-c89f-bcba70003b36'::uuid)
+  Filter: ((revoked_at IS NULL) AND (user_id = '270c1b08-4f3f-146e-b578-7075158d9c53'::uuid) AND (expires_at > now()))
+  Buffers: shared hit=3
+Planning Time: 0.015 ms
+Execution Time: 0.004 ms
+
+====================================================================================================
+DEQ-09 Run 3  [READ]  check the session named by a verified JWT cookie
+Parameters: existing session id (fac98944-7cad-2edb-c89f-bcba70003b36), its user id (270c1b08-4f3f-146e-b578-7075158d9c53)
+----------------------------------------------------------------------------------------------------
+Index Scan using sessions_pkey on sessions  (cost=0.28..8.31 rows=1 width=60) (actual time=0.001..0.001 rows=1 loops=1)
+  Index Cond: (id = 'fac98944-7cad-2edb-c89f-bcba70003b36'::uuid)
+  Filter: ((revoked_at IS NULL) AND (user_id = '270c1b08-4f3f-146e-b578-7075158d9c53'::uuid) AND (expires_at > now()))
+  Buffers: shared hit=3
+Planning Time: 0.010 ms
+Execution Time: 0.003 ms

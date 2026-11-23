@@ -1,0 +1,46 @@
+# DEQ-08 — revoke one of the user's browser sessions
+# Captured at: 2026-11-23T18:56:03.196Z
+# EXPLAIN (ANALYZE, BUFFERS) raw output for all three measured runs.
+# Type: WRITE; Parameters: existing browser session id (fac98944-7cad-2edb-c89f-bcba70003b36), its user id (270c1b08-4f3f-146e-b578-7075158d9c53)
+# PostgreSQL: PostgreSQL 14.23 on aarch64-apple-darwin20.0.0, compiled by clang version 20.1.8, 64-bit
+# Dataset: users=10001, devices=15000, login_requests=20000, sessions=6000
+====================================================================================================
+DEQ-08 Run 1  [WRITE]  revoke one of the user's browser sessions
+Parameters: existing browser session id (fac98944-7cad-2edb-c89f-bcba70003b36), its user id (270c1b08-4f3f-146e-b578-7075158d9c53)
+----------------------------------------------------------------------------------------------------
+Update on sessions  (cost=0.28..8.31 rows=0 width=0) (actual time=0.095..0.096 rows=0 loops=1)
+  Buffers: shared hit=34
+  ->  Index Scan using sessions_pkey on sessions  (cost=0.28..8.31 rows=1 width=14) (actual time=0.006..0.006 rows=1 loops=1)
+        Index Cond: (id = 'fac98944-7cad-2edb-c89f-bcba70003b36'::uuid)
+        Filter: ((revoked_at IS NULL) AND (user_id = '270c1b08-4f3f-146e-b578-7075158d9c53'::uuid) AND (type = 'BROWSER'::session_type))
+        Buffers: shared hit=3
+Planning:
+  Buffers: shared hit=126
+Planning Time: 0.172 ms
+Execution Time: 0.108 ms
+
+====================================================================================================
+DEQ-08 Run 2  [WRITE]  revoke one of the user's browser sessions
+Parameters: existing browser session id (fac98944-7cad-2edb-c89f-bcba70003b36), its user id (270c1b08-4f3f-146e-b578-7075158d9c53)
+----------------------------------------------------------------------------------------------------
+Update on sessions  (cost=0.28..8.31 rows=0 width=0) (actual time=0.014..0.014 rows=0 loops=1)
+  Buffers: shared hit=21
+  ->  Index Scan using sessions_pkey on sessions  (cost=0.28..8.31 rows=1 width=14) (actual time=0.003..0.003 rows=1 loops=1)
+        Index Cond: (id = 'fac98944-7cad-2edb-c89f-bcba70003b36'::uuid)
+        Filter: ((revoked_at IS NULL) AND (user_id = '270c1b08-4f3f-146e-b578-7075158d9c53'::uuid) AND (type = 'BROWSER'::session_type))
+        Buffers: shared hit=5
+Planning Time: 0.011 ms
+Execution Time: 0.017 ms
+
+====================================================================================================
+DEQ-08 Run 3  [WRITE]  revoke one of the user's browser sessions
+Parameters: existing browser session id (fac98944-7cad-2edb-c89f-bcba70003b36), its user id (270c1b08-4f3f-146e-b578-7075158d9c53)
+----------------------------------------------------------------------------------------------------
+Update on sessions  (cost=0.28..8.31 rows=0 width=0) (actual time=0.009..0.009 rows=0 loops=1)
+  Buffers: shared hit=21
+  ->  Index Scan using sessions_pkey on sessions  (cost=0.28..8.31 rows=1 width=14) (actual time=0.002..0.002 rows=1 loops=1)
+        Index Cond: (id = 'fac98944-7cad-2edb-c89f-bcba70003b36'::uuid)
+        Filter: ((revoked_at IS NULL) AND (user_id = '270c1b08-4f3f-146e-b578-7075158d9c53'::uuid) AND (type = 'BROWSER'::session_type))
+        Buffers: shared hit=5
+Planning Time: 0.009 ms
+Execution Time: 0.011 ms

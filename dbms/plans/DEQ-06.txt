@@ -1,0 +1,92 @@
+# DEQ-06 — atomically approve once and create the browser session
+# Captured at: 2026-11-23T18:56:03.195Z
+# EXPLAIN (ANALYZE, BUFFERS) raw output for all three measured runs.
+# Type: WRITE; Parameters: existing pending request id (a6fca0b7-a701-56a8-2e63-17d86d68f735), approving user id (e4774cdd-a079-3f86-414e-8b9140bb6db4), approving device id (9948c645-c094-2477-94f4-c7acdbeb2bb6), new session id, session name, expires_at (now + 7 days)
+# PostgreSQL: PostgreSQL 14.23 on aarch64-apple-darwin20.0.0, compiled by clang version 20.1.8, 64-bit
+# Dataset: users=10001, devices=15000, login_requests=20000, sessions=6000
+# Note: two statements in one transaction (rolled back). Run time = statement 1 + statement 2 Execution Time.
+====================================================================================================
+DEQ-06 Run 1  [WRITE]  atomically approve once and create the browser session
+Parameters: existing pending request id (a6fca0b7-a701-56a8-2e63-17d86d68f735), approving user id (e4774cdd-a079-3f86-414e-8b9140bb6db4), approving device id (9948c645-c094-2477-94f4-c7acdbeb2bb6), new session id, session name, expires_at (now + 7 days)
+----------------------------------------------------------------------------------------------------
+-- Statement 1 of 2: UPDATE login_requests (approve once)
+Update on login_requests  (cost=0.29..8.31 rows=1 width=50) (actual time=0.094..0.094 rows=1 loops=1)
+  Buffers: shared hit=31
+  ->  Index Scan using login_requests_pkey on login_requests  (cost=0.29..8.31 rows=1 width=50) (actual time=0.007..0.007 rows=1 loops=1)
+        Index Cond: (id = 'a6fca0b7-a701-56a8-2e63-17d86d68f735'::uuid)
+        Filter: ((status = 'PENDING'::login_request_status) AND (expires_at > now()))
+        Buffers: shared hit=3
+Planning:
+  Buffers: shared hit=119
+Planning Time: 0.191 ms
+Trigger for constraint login_requests_approved_by_user_id_fkey: time=0.132 calls=1
+Trigger for constraint login_requests_approved_by_device_id_fkey: time=0.099 calls=1
+Execution Time: 0.339 ms
+
+-- Statement 2 of 2: INSERT INTO sessions (runs only because the UPDATE returned one row)
+Insert on sessions  (cost=0.00..0.01 rows=0 width=0) (actual time=0.094..0.095 rows=0 loops=1)
+  Buffers: shared hit=70
+  ->  Result  (cost=0.00..0.01 rows=1 width=350) (actual time=0.002..0.002 rows=1 loops=1)
+Planning Time: 0.005 ms
+Trigger for constraint sessions_user_id_fkey: time=0.019 calls=1
+Trigger for constraint sessions_device_id_fkey: time=0.014 calls=1
+Trigger for constraint sessions_login_request_id_fkey: time=0.015 calls=1
+Execution Time: 0.145 ms
+
+Run total (statement 1 + statement 2): 0.484 ms
+
+====================================================================================================
+DEQ-06 Run 2  [WRITE]  atomically approve once and create the browser session
+Parameters: existing pending request id (a6fca0b7-a701-56a8-2e63-17d86d68f735), approving user id (e4774cdd-a079-3f86-414e-8b9140bb6db4), approving device id (9948c645-c094-2477-94f4-c7acdbeb2bb6), new session id, session name, expires_at (now + 7 days)
+----------------------------------------------------------------------------------------------------
+-- Statement 1 of 2: UPDATE login_requests (approve once)
+Update on login_requests  (cost=0.29..8.31 rows=1 width=50) (actual time=0.015..0.016 rows=1 loops=1)
+  Buffers: shared hit=20
+  ->  Index Scan using login_requests_pkey on login_requests  (cost=0.29..8.31 rows=1 width=50) (actual time=0.002..0.003 rows=1 loops=1)
+        Index Cond: (id = 'a6fca0b7-a701-56a8-2e63-17d86d68f735'::uuid)
+        Filter: ((status = 'PENDING'::login_request_status) AND (expires_at > now()))
+        Buffers: shared hit=5
+Planning Time: 0.015 ms
+Trigger for constraint login_requests_approved_by_user_id_fkey: time=0.011 calls=1
+Trigger for constraint login_requests_approved_by_device_id_fkey: time=0.008 calls=1
+Execution Time: 0.038 ms
+
+-- Statement 2 of 2: INSERT INTO sessions (runs only because the UPDATE returned one row)
+Insert on sessions  (cost=0.00..0.01 rows=0 width=0) (actual time=0.008..0.008 rows=0 loops=1)
+  Buffers: shared hit=11
+  ->  Result  (cost=0.00..0.01 rows=1 width=350) (actual time=0.000..0.000 rows=1 loops=1)
+Planning Time: 0.003 ms
+Trigger for constraint sessions_user_id_fkey: time=0.008 calls=1
+Trigger for constraint sessions_device_id_fkey: time=0.006 calls=1
+Trigger for constraint sessions_login_request_id_fkey: time=0.007 calls=1
+Execution Time: 0.031 ms
+
+Run total (statement 1 + statement 2): 0.069 ms
+
+====================================================================================================
+DEQ-06 Run 3  [WRITE]  atomically approve once and create the browser session
+Parameters: existing pending request id (a6fca0b7-a701-56a8-2e63-17d86d68f735), approving user id (e4774cdd-a079-3f86-414e-8b9140bb6db4), approving device id (9948c645-c094-2477-94f4-c7acdbeb2bb6), new session id, session name, expires_at (now + 7 days)
+----------------------------------------------------------------------------------------------------
+-- Statement 1 of 2: UPDATE login_requests (approve once)
+Update on login_requests  (cost=0.29..8.31 rows=1 width=50) (actual time=0.012..0.012 rows=1 loops=1)
+  Buffers: shared hit=20
+  ->  Index Scan using login_requests_pkey on login_requests  (cost=0.29..8.31 rows=1 width=50) (actual time=0.002..0.002 rows=1 loops=1)
+        Index Cond: (id = 'a6fca0b7-a701-56a8-2e63-17d86d68f735'::uuid)
+        Filter: ((status = 'PENDING'::login_request_status) AND (expires_at > now()))
+        Buffers: shared hit=5
+Planning Time: 0.008 ms
+Trigger for constraint login_requests_approved_by_user_id_fkey: time=0.007 calls=1
+Trigger for constraint login_requests_approved_by_device_id_fkey: time=0.007 calls=1
+Execution Time: 0.028 ms
+
+-- Statement 2 of 2: INSERT INTO sessions (runs only because the UPDATE returned one row)
+Insert on sessions  (cost=0.00..0.01 rows=0 width=0) (actual time=0.006..0.006 rows=0 loops=1)
+  Buffers: shared hit=11
+  ->  Result  (cost=0.00..0.01 rows=1 width=350) (actual time=0.000..0.000 rows=1 loops=1)
+Planning Time: 0.003 ms
+Trigger for constraint sessions_user_id_fkey: time=0.007 calls=1
+Trigger for constraint sessions_device_id_fkey: time=0.006 calls=1
+Trigger for constraint sessions_login_request_id_fkey: time=0.007 calls=1
+Execution Time: 0.028 ms
+
+Run total (statement 1 + statement 2): 0.056 ms

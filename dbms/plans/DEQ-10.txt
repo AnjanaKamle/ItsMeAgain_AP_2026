@@ -1,0 +1,55 @@
+# DEQ-10 — expire old pending requests
+# Captured at: 2026-11-23T18:56:03.196Z
+# EXPLAIN (ANALYZE, BUFFERS) raw output for all three measured runs.
+# Type: WRITE; Parameters: none
+# PostgreSQL: PostgreSQL 14.23 on aarch64-apple-darwin20.0.0, compiled by clang version 20.1.8, 64-bit
+# Dataset: users=10001, devices=15000, login_requests=20000, sessions=6000
+====================================================================================================
+DEQ-10 Run 1  [WRITE]  expire old pending requests
+Parameters: none
+----------------------------------------------------------------------------------------------------
+Update on login_requests  (cost=19.68..474.12 rows=0 width=0) (actual time=13.116..13.116 rows=0 loops=1)
+  Buffers: shared hit=44662 dirtied=94 written=94
+  ->  Bitmap Heap Scan on login_requests  (cost=19.68..474.12 rows=1111 width=10) (actual time=0.069..0.405 rows=3334 loops=1)
+        Recheck Cond: ((status = 'PENDING'::login_request_status) AND (expires_at <= now()))
+        Heap Blocks: exact=435
+        Buffers: shared hit=439
+        ->  Bitmap Index Scan on login_requests_status_expiry_idx  (cost=0.00..19.40 rows=1111 width=0) (actual time=0.046..0.046 rows=3334 loops=1)
+              Index Cond: ((status = 'PENDING'::login_request_status) AND (expires_at <= now()))
+              Buffers: shared hit=4
+Planning:
+  Buffers: shared hit=108
+Planning Time: 0.169 ms
+Execution Time: 13.130 ms
+
+====================================================================================================
+DEQ-10 Run 2  [WRITE]  expire old pending requests
+Parameters: none
+----------------------------------------------------------------------------------------------------
+Update on login_requests  (cost=21.46..546.95 rows=0 width=0) (actual time=15.360..15.361 rows=0 loops=1)
+  Buffers: shared hit=51729 dirtied=80 written=80
+  ->  Bitmap Heap Scan on login_requests  (cost=21.46..546.95 rows=1285 width=10) (actual time=0.059..0.579 rows=3334 loops=1)
+        Recheck Cond: ((status = 'PENDING'::login_request_status) AND (expires_at <= now()))
+        Heap Blocks: exact=435
+        Buffers: shared hit=439
+        ->  Bitmap Index Scan on login_requests_status_expiry_idx  (cost=0.00..21.14 rows=1285 width=0) (actual time=0.040..0.040 rows=3334 loops=1)
+              Index Cond: ((status = 'PENDING'::login_request_status) AND (expires_at <= now()))
+              Buffers: shared hit=4
+Planning Time: 0.019 ms
+Execution Time: 15.369 ms
+
+====================================================================================================
+DEQ-10 Run 3  [WRITE]  expire old pending requests
+Parameters: none
+----------------------------------------------------------------------------------------------------
+Update on login_requests  (cost=23.24..619.78 rows=0 width=0) (actual time=17.060..17.060 rows=0 loops=1)
+  Buffers: shared hit=54640 dirtied=70 written=70
+  ->  Bitmap Heap Scan on login_requests  (cost=23.24..619.78 rows=1459 width=10) (actual time=0.076..0.514 rows=3334 loops=1)
+        Recheck Cond: ((status = 'PENDING'::login_request_status) AND (expires_at <= now()))
+        Heap Blocks: exact=435
+        Buffers: shared hit=439
+        ->  Bitmap Index Scan on login_requests_status_expiry_idx  (cost=0.00..22.88 rows=1459 width=0) (actual time=0.047..0.048 rows=3334 loops=1)
+              Index Cond: ((status = 'PENDING'::login_request_status) AND (expires_at <= now()))
+              Buffers: shared hit=4
+Planning Time: 0.031 ms
+Execution Time: 17.072 ms
